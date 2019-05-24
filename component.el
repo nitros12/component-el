@@ -28,6 +28,7 @@
 
 ;;; Code:
 
+(require 'eieio)
 (require 'cl-lib)
 (require 'magit)
 (require 'subr-x)
@@ -116,7 +117,7 @@ such in component ASTs." name)))
     (insert ?\n))
 
   ;; Update containing section to point to this heading.
-  (setf (magit-section-content magit-insert-section--current) (point-marker)))
+  (oset magit-insert-section--current content (point-marker)))
 
 (defsubst component--finalize-list-item (start-pos)
   (save-excursion
@@ -158,6 +159,10 @@ such in component ASTs." name)))
 
         ;; Padding gets some special error checking to make sure it has no inner
         ;; AST, since I get `padding' and `indent' mixed up all the time.
+
+        (`(image ,inner-image)
+          (insert-image inner-image)
+          (!cdr instruction-stack))
 
         ((and `(padding . ,_rest) (guard _rest))
          (error "Padding takes no arguments"))
